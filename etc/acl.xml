@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="DockCodes_DockRay::dockray" title="DockRay" translate="title" sortOrder="85">
+                    <resource id="DockCodes_DockRay::overview" title="Overview and vulnerability report" translate="title" sortOrder="10"/>
+                    <resource id="DockCodes_DockRay::test" title="Send a test event" translate="title" sortOrder="20"/>
+                    <resource id="DockCodes_DockRay::inventory" title="Send the software report" translate="title" sortOrder="30"/>
+                </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="DockCodes_DockRay::config" title="DockRay" translate="title" sortOrder="900"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

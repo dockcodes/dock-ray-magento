@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="dockray" translate="label" sortOrder="900" class="dockray-tab">
+            <label>DockRay</label>
+        </tab>
+        <!--
+            Default scope only: monitoring belongs to the installation, not to a
+            store view. Values set in app/etc/env.php (bin/magento config:set
+            with the lock-env option) or CONFIG__DEFAULT__DOCKRAY__* variables win and show up
+            here as locked fields - Magento does that on its own.
+        -->
+        <section id="dockray" translate="label" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+            <class>separator-top</class>
+            <label>Monitoring</label>
+            <tab>dockray</tab>
+            <resource>DockCodes_DockRay::config</resource>
+            <group id="status" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Status</label>
+                <frontend_model>DockCodes\DockRay\Block\Adminhtml\System\Config\Header</frontend_model>
+            </group>
+            <group id="connection" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Connection</label>
+                <comment>Saving a project token and private key enables sending PHP errors and source context to DockRay. Request timing, browser errors and user identity are optional.</comment>
+                <field id="token" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Project token</label>
+                    <comment>Public identifier of the project; it appears in the ingest URL.</comment>
+                    <validate>validate-no-html-tags</validate>
+                    <backend_model>DockCodes\DockRay\Model\Config\Backend\Trimmed</backend_model>
+                </field>
+                <field id="private_key" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Project private key</label>
+                    <comment><![CDATA[Stored encrypted. Leave the dots to keep the saved key. To keep it out of the database, run <code>bin/magento config:set --lock-env dockray/connection/private_key …</code>.]]></comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+            </group>
+            <group id="general" translate="label" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Behaviour</label>
+                <field id="environment" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Environment</label>
+                    <comment>Defaults to the Magento mode when left empty: "production", or "development" in developer mode.</comment>
+                    <validate>validate-no-html-tags</validate>
+                    <backend_model>DockCodes\DockRay\Model\Config\Backend\Trimmed</backend_model>
+                </field>
+                <field id="release" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Release</label>
+                    <comment>Defaults to the deployed static content version when left empty, so every deployment is its own release.</comment>
+                    <validate>validate-no-html-tags</validate>
+                    <backend_model>DockCodes\DockRay\Model\Config\Backend\Trimmed</backend_model>
+                </field>
+                <field id="traces_sample_rate" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Transaction sample rate</label>
+                    <comment>Share of requests measured, from 0 to 1 (0.1 = every tenth request). Zero disables performance tracking.</comment>
+                    <validate>required-entry validate-number validate-number-range number-range-0-1</validate>
+                    <backend_model>DockCodes\DockRay\Model\Config\Backend\SampleRate</backend_model>
+                </field>
+                <field id="send_default_pii" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Send user identity, IP address and user agent</label>
+                    <comment>Includes the ID, username and e-mail of the logged-in customer or admin user. Off by default.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="browser" translate="label" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>JavaScript errors</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Collect JavaScript errors</label>
+                    <comment>Off by default. The browser reports to this store, which forwards the error - the private key never reaches the page. Works with the full page cache.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="sample_rate" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>JavaScript error sample rate</label>
+                    <comment>From 0 to 1. Changing it requires flushing the full page cache.</comment>
+                    <validate>required-entry validate-number validate-number-range number-range-0-1</validate>
+                    <backend_model>DockCodes\DockRay\Model\Config\Backend\SampleRate</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="inventory" translate="label" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Vulnerability checks</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Send software versions for vulnerability checks</label>
+                    <comment>Off by default. About twice a day and shortly after software changes, sends the Magento and PHP versions, the list of installed Composer packages, extensions and themes with their versions, and the store address - nothing else. Requires the token, the private key and Magento cron.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,19 @@
+/*
+ * The DockRay mark in the admin menu, in place of a font icon. The selector
+ * is the id Magento derives from the menu item (DockCodes_DockRay::dockray).
+ */
+.admin__menu #menu-dockcodes-dockray-dockray > a:before {
+    content: '';
+    display: block;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin: 0 auto 0.6rem;
+    background: url('../images/dockray-mark.svg') no-repeat center / contain;
+    opacity: 0.85;
+}
+
+.admin__menu #menu-dockcodes-dockray-dockray > a:hover:before,
+.admin__menu #menu-dockcodes-dockray-dockray._active > a:before,
+.admin__menu #menu-dockcodes-dockray-dockray._show > a:before {
+    opacity: 1;
+}

@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- One hub per process: the reporter, the logger handler and the plugins share it. -->
+    <type name="DockCodes\DockRay\Model\Reporter" shared="true"/>
+
+    <!--
+        The logger is built before almost anything else, and the reporter reads
+        configuration, which may itself log. The proxy defers the reporter until
+        the first error record actually arrives.
+    -->
+    <type name="DockCodes\DockRay\Logger\Handler">
+        <arguments>
+            <argument name="reporter" xsi:type="object">DockCodes\DockRay\Model\Reporter\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="dockray" xsi:type="object">DockCodes\DockRay\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Every web request (storefront, admin, REST, GraphQL) runs through this application. -->
+    <type name="Magento\Framework\App\Http">
+        <plugin name="dockray_http" type="DockCodes\DockRay\Plugin\HttpApplicationPlugin" sortOrder="1"/>
+    </type>
+    <type name="DockCodes\DockRay\Plugin\HttpApplicationPlugin">
+        <arguments>
+            <argument name="reporter" xsi:type="object">DockCodes\DockRay\Model\Reporter\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Sessions and user repositories are only touched when an error is reported. -->
+    <type name="DockCodes\DockRay\Model\UserContext">
+        <arguments>
+            <argument name="userContext" xsi:type="object">Magento\Authorization\Model\UserContextInterface\Proxy</argument>
+            <argument name="customerRepository" xsi:type="object">Magento\Customer\Api\CustomerRepositoryInterface\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!--
+        The private key never lands in app/etc/config.php through config:dump,
+        and the values that differ per server (credentials, environment name)
+        are offered for app/etc/env.php instead.
+    -->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="dockray/connection/private_key" xsi:type="string">1</item>
+            </argument>
+            <argument name="environment" xsi:type="array">
+                <item name="dockray/connection/token" xsi:type="string">1</item>
+                <item name="dockray/connection/private_key" xsi:type="string">1</item>
+                <item name="dockray/general/environment" xsi:type="string">1</item>
+                <item name="dockray/general/release" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="dockray_test" xsi:type="object">DockCodes\DockRay\Console\Command\TestCommand</item>
+                <item name="dockray_inventory" xsi:type="object">DockCodes\DockRay\Console\Command\InventoryCommand</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="DockCodes\DockRay\Console\Command\TestCommand">
+        <arguments>
+            <argument name="reporter" xsi:type="object">DockCodes\DockRay\Model\Reporter\Proxy</argument>
+            <argument name="state" xsi:type="object">DockCodes\DockRay\Model\Inventory\State\Proxy</argument>
+        </arguments>
+    </type>
+    <!-- Commands are built on every bin/magento call, also before the database exists. -->
+    <type name="DockCodes\DockRay\Console\Command\InventoryCommand">
+        <arguments>
+            <argument name="inventory" xsi:type="object">DockCodes\DockRay\Model\Inventory\InventoryService\Proxy</argument>
+        </arguments>
+    </type>
+</config>

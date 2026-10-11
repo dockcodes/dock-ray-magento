@@ -1,0 +1,19 @@
+<?php
+/**
+ * @var \DockCodes\DockRay\Block\BrowserCollector $block
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+if (! $block->isEnabled()) {
+    return;
+}
+
+// The token is read from the `form_key` cookie at send time - the page itself
+// stays identical for every visitor, so it can be cached.
+$inline = 'window.DockRayConfig = '.$block->configJson().';'
+    .'Object.defineProperty(window.DockRayConfig, "token", {get: function () {'
+    .'var m = document.cookie.match(/(?:^|;\s*)form_key=([^;]+)/);'
+    .'return m ? decodeURIComponent(m[1]) : "";'
+    .'}});';
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $inline, false) ?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['src' => $block->scriptUrl(), 'defer' => 'defer'], ' ', false) ?>

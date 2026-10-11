@@ -1,0 +1,29 @@
+<?php
+/**
+ * @var \DockCodes\DockRay\Block\Adminhtml\System\Config\Header $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div class="dockray dockray--config" data-dockray-root
+     data-mage-init='<?= $escaper->escapeHtmlAttr('{"DockCodes_DockRay/js/dockray-admin": '.$block->scriptConfig().'}') ?>'>
+    <div class="dockray-banner">
+        <img class="dockray-banner__logo" src="<?= $escaper->escapeUrl($block->logoUrl(true)) ?>" width="76" height="29" alt="DockRay">
+        <div class="dockray-banner__status">
+            <?= /* @noEscape */ $block->fetchView($block->getTemplateFile('DockCodes_DockRay::partials/pills.phtml')) ?>
+        </div>
+        <div class="dockray-banner__actions">
+            <?php if ($block->canTest()): ?>
+                <button type="button" class="dockray-btn dockray-btn--primary" data-dockray-test <?= /* @noEscape */ $block->isConfigured() ? '' : 'disabled' ?>>
+                    <?= $escaper->escapeHtml(__('Send a test event')) ?>
+                </button>
+            <?php endif; ?>
+            <a class="dockray-btn dockray-btn--light" href="<?= $escaper->escapeUrl($block->overviewUrl()) ?>">
+                <?= $escaper->escapeHtml(__('Overview and vulnerability report')) ?>
+            </a>
+        </div>
+        <p class="dockray-result dockray-result--hero" role="status" aria-live="polite" data-dockray-test-result></p>
+    </div>
+    <p class="dockray-note dockray-note--config">
+        <?= $escaper->escapeHtml(__('Settings are global. A value set in app/etc/env.php (bin/magento config:set --lock-env) or in a CONFIG__DEFAULT__DOCKRAY__* environment variable wins and is shown below as locked - keep the private key there to keep it out of the database.')) ?>
+    </p>
+</div>

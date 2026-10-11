@@ -1,0 +1,28 @@
+<?php
+/**
+ * Connection status: credentials present, and the outcome of the last test.
+ * Never asks DockRay - opening a screen must not send anything.
+ *
+ * @var \DockCodes\DockRay\Block\Adminhtml\Dashboard $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$configured = $block->isConfigured();
+$test = $block->lastTest();
+?>
+<span class="dockray-pill <?= /* @noEscape */ $configured ? 'dockray-pill--ok' : 'dockray-pill--neutral' ?>">
+    <span class="dockray-pill__dot" aria-hidden="true"></span>
+    <?= $escaper->escapeHtml($configured ? __('Configured') : __('Not configured')) ?>
+</span>
+<?php if ($test === null): ?>
+    <span class="dockray-pill dockray-pill--neutral" data-dockray-test-badge>
+        <span class="dockray-pill__dot" aria-hidden="true"></span>
+        <?= $escaper->escapeHtml(__('Not tested yet')) ?>
+    </span>
+<?php else: ?>
+    <span class="dockray-pill <?= /* @noEscape */ ! empty($test['success']) ? 'dockray-pill--ok' : 'dockray-pill--error' ?>" data-dockray-test-badge>
+        <span class="dockray-pill__dot" aria-hidden="true"></span>
+        <?= $escaper->escapeHtml(! empty($test['success'])
+            ? __('Connected - verified %1 ago', $block->timeAgo((int) $test['at']))
+            : __('Test failed %1 ago', $block->timeAgo((int) $test['at']))) ?>
+    </span>
+<?php endif; ?>

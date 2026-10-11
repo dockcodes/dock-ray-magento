@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="DockCodes_DockRay::css/dockray.css"/>
+    </head>
+    <body>
+        <referenceBlock name="page.title" remove="true"/>
+        <referenceContainer name="content">
+            <block class="DockCodes\DockRay\Block\Adminhtml\Dashboard" name="dockray.overview"
+                   template="DockCodes_DockRay::overview.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

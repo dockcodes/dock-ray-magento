@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="DockCodes_DockRay::dockray" title="DockRay" translate="title" module="DockCodes_DockRay"
+             sortOrder="85" resource="DockCodes_DockRay::dockray"/>
+        <add id="DockCodes_DockRay::overview" title="Overview" translate="title" module="DockCodes_DockRay"
+             sortOrder="10" parent="DockCodes_DockRay::dockray" action="dockray/overview/index"
+             resource="DockCodes_DockRay::overview"/>
+        <add id="DockCodes_DockRay::settings" title="Settings" translate="title" module="DockCodes_DockRay"
+             sortOrder="20" parent="DockCodes_DockRay::dockray" action="adminhtml/system_config/edit/section/dockray"
+             resource="DockCodes_DockRay::config"/>
+    </menu>
+</config>

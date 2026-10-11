@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <!--
+            Cheap tick: it only sends when the interval asked for by DockRay has
+            passed or the installed software changed. Disabled setting = no-op.
+        -->
+        <job name="dockray_inventory_tick" instance="DockCodes\DockRay\Cron\InventoryTick" method="execute">
+            <schedule>*/15 * * * *</schedule>
+        </job>
+    </group>
+</config>

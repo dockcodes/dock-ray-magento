@@ -1,0 +1,99 @@
+<?php
+/**
+ * @var \DockCodes\DockRay\Block\Adminhtml\Dashboard $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$configured = $block->isConfigured();
+?>
+<div class="dockray" data-dockray-root
+     data-mage-init='<?= $escaper->escapeHtmlAttr('{"DockCodes_DockRay/js/dockray-admin": '.$block->scriptConfig().'}') ?>'>
+
+    <section class="dockray-hero">
+        <div class="dockray-hero__top">
+            <img class="dockray-hero__logo" src="<?= $escaper->escapeUrl($block->logoUrl(true)) ?>"
+                 width="96" height="37" alt="DockRay">
+            <span class="dockray-hero__version"><?= $escaper->escapeHtml(__('Magento module %1', $block->version())) ?></span>
+        </div>
+        <h1 class="dockray-hero__title"><?= $escaper->escapeHtml(__('Errors, performance and vulnerabilities of this store - in one place.')) ?></h1>
+        <p class="dockray-hero__lead"><?= $escaper->escapeHtml(__('DockRay reports what goes wrong in Magento before customers tell you, and tells you which installed extension has a known vulnerability.')) ?></p>
+        <div class="dockray-hero__status">
+            <?= /* @noEscape */ $block->fetchView($block->getTemplateFile('DockCodes_DockRay::partials/pills.phtml')) ?>
+        </div>
+        <div class="dockray-hero__actions">
+            <?php if ($block->canTest()): ?>
+                <button type="button" class="dockray-btn dockray-btn--primary" data-dockray-test <?= /* @noEscape */ $configured ? '' : 'disabled' ?>>
+                    <?= $escaper->escapeHtml(__('Send a test event')) ?>
+                </button>
+            <?php endif; ?>
+            <?php if ($block->canConfigure()): ?>
+                <a class="dockray-btn dockray-btn--light" href="<?= $escaper->escapeUrl($block->settingsUrl()) ?>">
+                    <?= $escaper->escapeHtml(__('Settings')) ?>
+                </a>
+            <?php endif; ?>
+            <a class="dockray-btn dockray-btn--link" href="<?= $escaper->escapeUrl($block->panelUrl()) ?>" target="_blank" rel="noopener noreferrer">
+                <?= $escaper->escapeHtml(__('Open the DockRay panel')) ?> <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+        <p class="dockray-result dockray-result--hero" role="status" aria-live="polite" data-dockray-test-result></p>
+    </section>
+
+    <?php if (! $configured): ?>
+        <section class="dockray-card dockray-card--accent">
+            <div class="dockray-card__body">
+                <h2 class="dockray-card__title"><?= $escaper->escapeHtml(__('Connect this store in three steps')) ?></h2>
+                <ol class="dockray-steps">
+                    <li><?= $escaper->escapeHtml(__('Create a project in DockRay - the free plan is enough to start.')) ?></li>
+                    <li><?= $escaper->escapeHtml(__('Copy the project token and generate a private key in the project settings.')) ?></li>
+                    <li><?= $escaper->escapeHtml(__('Paste both into Settings and send a test event.')) ?></li>
+                </ol>
+            </div>
+        </section>
+    <?php endif; ?>
+
+    <div class="dockray-features">
+        <?php foreach ($block->features() as $feature): ?>
+            <article class="dockray-feature <?= /* @noEscape */ $feature['on'] ? 'is-on' : '' ?>">
+                <span class="dockray-feature__icon dockray-feature__icon--<?= $escaper->escapeHtmlAttr($feature['key']) ?>" aria-hidden="true"></span>
+                <h3 class="dockray-feature__title"><?= $escaper->escapeHtml($feature['title']) ?></h3>
+                <span class="dockray-feature__state"><?= $escaper->escapeHtml($feature['state']) ?></span>
+                <p class="dockray-feature__text"><?= $escaper->escapeHtml($feature['text']) ?></p>
+            </article>
+        <?php endforeach; ?>
+    </div>
+
+    <section class="dockray-card" data-dockray-inventory>
+        <header class="dockray-card__header">
+            <div>
+                <h2 class="dockray-card__title"><?= $escaper->escapeHtml(__('Last vulnerability report')) ?></h2>
+                <p class="dockray-card__subtitle"><?= $escaper->escapeHtml(__('What DockRay found in the versions this store reported.')) ?></p>
+            </div>
+            <?php if ($block->canSendInventory()): ?>
+                <button type="button" class="dockray-btn dockray-btn--ghost" data-dockray-inventory-send <?= /* @noEscape */ $block->inventoryEnabled() ? '' : 'disabled' ?>>
+                    <?= $escaper->escapeHtml(__('Send now')) ?>
+                </button>
+            <?php endif; ?>
+        </header>
+        <div class="dockray-card__body">
+            <?php if (! $block->inventoryEnabled()): ?>
+                <p class="dockray-note">
+                    <?= $escaper->escapeHtml($configured
+                        ? __('Vulnerability checks are off. Turn them on in Settings to send a report.')
+                        : __('Fill in the token and the private key, then turn on vulnerability checks.')) ?>
+                </p>
+            <?php endif; ?>
+            <p class="dockray-result" role="status" aria-live="polite" data-dockray-inventory-result></p>
+            <div data-dockray-inventory-report>
+                <?= /* @noEscape */ $block->fetchView($block->getTemplateFile('DockCodes_DockRay::inventory-report.phtml')) ?>
+            </div>
+        </div>
+    </section>
+
+    <footer class="dockray-footer">
+        <span><?= $escaper->escapeHtml(__('Nothing is sent while an admin page is shown. Reports leave after the response, filtered: no request bodies, headers, cookies or query strings.')) ?></span>
+        <span>
+            <a href="https://dockray.io/privacy-policy" target="_blank" rel="noopener noreferrer"><?= $escaper->escapeHtml(__('Privacy policy')) ?></a>
+            ·
+            <a href="https://dockray.io/pl/regulamin" target="_blank" rel="noopener noreferrer"><?= $escaper->escapeHtml(__('Service terms')) ?></a>
+        </span>
+    </footer>
+</div>

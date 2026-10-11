@@ -1,0 +1,682 @@
+/*
+ * DockRay in the Magento admin. The palette is the one of dockray.io and the
+ * DockRay panel (orange #c2410c, navy #141833, lavender canvas), laid over
+ * Magento's own admin theme - nothing outside .dockray / .dockray-tab is
+ * touched. Text colours keep at least 4.5:1, control borders 3:1.
+ */
+.dockray {
+    --dr-brand: #c2410c;
+    --dr-brand-strong: #9a3412;
+    --dr-brand-soft: #fef2ea;
+    --dr-brand-light: #fb923c;
+    --dr-ink: #141833;
+    --dr-night: #0c1030;
+    --dr-muted: #5f6185;
+    --dr-line: #e2e2ef;
+    --dr-line-strong: #8a8caa;
+    --dr-surface: #f6f6fc;
+    --dr-up: #12c48b;
+    --dr-up-text: #0b7956;
+    --dr-up-soft: #e7f8f1;
+    --dr-warn: #e9a800;
+    --dr-warn-text: #835e00;
+    --dr-warn-soft: #fdf6e3;
+    --dr-down: #e14b4b;
+    --dr-down-text: #db2828;
+    --dr-down-soft: #fdecec;
+    --dr-radius: 10px;
+    --dr-radius-lg: 20px;
+    --dr-shadow: 0 1px 2px rgba(20, 24, 51, 0.06), 0 8px 24px rgba(20, 24, 51, 0.06);
+    color: var(--dr-ink);
+    font-size: 1.4rem;
+    line-height: 1.55;
+    max-width: 1180px;
+}
+
+.dockray *,
+.dockray *::before,
+.dockray *::after {
+    box-sizing: border-box;
+}
+
+.dockray a {
+    color: var(--dr-brand);
+}
+
+.dockray a:hover {
+    color: var(--dr-brand-strong);
+}
+
+.dockray code {
+    padding: 0.1rem 0.5rem;
+    border-radius: 6px;
+    background: var(--dr-surface);
+    color: var(--dr-ink);
+    font-size: 1.25rem;
+}
+
+/* ---------- Hero: the navy band of dockray.io ---------- */
+
+.dockray-hero {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 2rem;
+    padding: 3.2rem 3.6rem 2.8rem;
+    border-radius: var(--dr-radius-lg);
+    color: #fff;
+    background-color: var(--dr-night);
+    background-image:
+        radial-gradient(60rem 30rem at 100% 0%, rgba(194, 65, 12, 0.42), transparent 60%),
+        radial-gradient(50rem 28rem at 0% 100%, rgba(109, 94, 252, 0.28), transparent 60%);
+}
+
+.dockray-hero__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.6rem;
+    margin-bottom: 2.4rem;
+}
+
+.dockray-hero__logo {
+    display: block;
+    width: auto;
+    height: 3.2rem;
+}
+
+.dockray-hero__version {
+    padding: 0.3rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1.2rem;
+    letter-spacing: 0.04em;
+}
+
+.dockray-hero__title {
+    max-width: 44ch;
+    margin: 0 0 0.8rem;
+    color: #fff;
+    font-size: 2.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.dockray-hero__lead {
+    max-width: 70ch;
+    margin: 0 0 2rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1.5rem;
+}
+
+.dockray-hero__status,
+.dockray-banner__status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.dockray-hero__actions,
+.dockray-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* ---------- Banner on the configuration screen ---------- */
+
+.dockray--config {
+    max-width: none;
+    margin-bottom: 2.4rem;
+}
+
+.dockray-banner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.6rem 2.4rem;
+    padding: 2rem 2.4rem;
+    border-radius: var(--dr-radius-lg);
+    color: #fff;
+    background-color: var(--dr-night);
+    background-image: radial-gradient(40rem 20rem at 100% 0%, rgba(194, 65, 12, 0.4), transparent 60%);
+}
+
+.dockray-banner__logo {
+    display: block;
+    width: auto;
+    height: 2.6rem;
+}
+
+.dockray-banner__actions {
+    margin-top: 0;
+}
+
+.dockray-banner .dockray-result {
+    grid-column: 1 / -1;
+}
+
+.dockray-note--config {
+    margin: 1.2rem 0.4rem 0;
+}
+
+/* ---------- Pills ---------- */
+
+.dockray-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 1.1rem;
+    border-radius: 999px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--dr-surface);
+    color: var(--dr-muted);
+}
+
+.dockray-pill__dot {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--dr-line-strong);
+}
+
+.dockray-pill--ok {
+    background: var(--dr-up-soft);
+    color: var(--dr-up-text);
+}
+
+.dockray-pill--ok .dockray-pill__dot {
+    background: var(--dr-up);
+    box-shadow: 0 0 0 3px rgba(18, 196, 139, 0.22);
+}
+
+.dockray-pill--error {
+    background: var(--dr-down-soft);
+    color: var(--dr-down-text);
+}
+
+.dockray-pill--error .dockray-pill__dot {
+    background: var(--dr-down);
+}
+
+/* ---------- Buttons ---------- */
+
+.dockray-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 4rem;
+    padding: 0.8rem 1.8rem;
+    border: 1px solid transparent;
+    border-radius: var(--dr-radius);
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.dockray-btn:hover,
+.dockray-btn:focus {
+    text-decoration: none;
+}
+
+.dockray-btn:focus-visible {
+    outline: 2px solid var(--dr-brand-light);
+    outline-offset: 2px;
+}
+
+.dockray-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dockray .dockray-btn--primary {
+    background: var(--dr-brand);
+    color: #fff;
+}
+
+.dockray .dockray-btn--primary:hover:not([disabled]) {
+    background: var(--dr-brand-strong);
+    color: #fff;
+}
+
+.dockray .dockray-btn--light {
+    background: #fff;
+    color: var(--dr-ink);
+}
+
+.dockray .dockray-btn--light:hover {
+    background: var(--dr-brand-soft);
+    color: var(--dr-ink);
+}
+
+.dockray .dockray-btn--link {
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+    color: #fff;
+}
+
+.dockray .dockray-btn--link:hover {
+    color: var(--dr-brand-light);
+}
+
+.dockray .dockray-btn--ghost {
+    border-color: var(--dr-line-strong);
+    background: #fff;
+    color: var(--dr-ink);
+}
+
+.dockray .dockray-btn--ghost:hover:not([disabled]) {
+    border-color: var(--dr-brand);
+    color: var(--dr-brand);
+}
+
+/* ---------- Results ---------- */
+
+.dockray-result {
+    margin: 1.2rem 0 0;
+    font-weight: 600;
+}
+
+.dockray-result:empty {
+    display: none;
+}
+
+.dockray-result--ok {
+    color: var(--dr-up-text);
+}
+
+.dockray-result--error {
+    color: var(--dr-down-text);
+}
+
+.dockray-result--pending {
+    color: var(--dr-muted);
+}
+
+.dockray-result--hero.dockray-result--ok {
+    color: #6ee7b7;
+}
+
+.dockray-result--hero.dockray-result--error {
+    color: #fca5a5;
+}
+
+.dockray-result--hero.dockray-result--pending {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.dockray-note {
+    margin: 0.6rem 0 0;
+    color: var(--dr-muted);
+    font-size: 1.3rem;
+}
+
+/* ---------- Feature tiles ---------- */
+
+.dockray-features {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.6rem;
+    margin-bottom: 2rem;
+}
+
+.dockray-feature {
+    position: relative;
+    padding: 2rem;
+    border: 1px solid var(--dr-line);
+    border-radius: var(--dr-radius-lg);
+    background: #fff;
+    box-shadow: var(--dr-shadow);
+}
+
+.dockray-feature__icon {
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1.4rem;
+    border-radius: 12px;
+    background: var(--dr-surface);
+}
+
+.dockray-feature.is-on .dockray-feature__icon {
+    background: var(--dr-brand-soft);
+}
+
+/* Simple inline glyphs, so the screen needs no icon font. */
+.dockray-feature__icon::before {
+    content: '';
+    width: 2rem;
+    height: 2rem;
+    background-color: var(--dr-line-strong);
+    -webkit-mask: var(--dr-icon) no-repeat center / contain;
+    mask: var(--dr-icon) no-repeat center / contain;
+}
+
+.dockray-feature.is-on .dockray-feature__icon::before {
+    background-color: var(--dr-brand);
+}
+
+.dockray-feature__icon--errors {
+    --dr-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 1 21h22L12 2Zm1 15h-2v-2h2v2Zm0-4h-2V9h2v4Z'/%3E%3C/svg%3E");
+}
+
+.dockray-feature__icon--performance {
+    --dr-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7l1-8Z'/%3E%3C/svg%3E");
+}
+
+.dockray-feature__icon--browser {
+    --dr-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 5v9h16V9H4Zm2.5 2 3 2.5-3 2.5L5.4 14.7 6.9 13.5 5.4 12.3 6.5 11Zm4.5 4h5v1.5h-5V15Z'/%3E%3C/svg%3E");
+}
+
+.dockray-feature__icon--inventory {
+    --dr-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-4Zm-1.4 15.6-4-4 1.4-1.4 2.6 2.6 5.8-5.8 1.4 1.4-7.2 7.2Z'/%3E%3C/svg%3E");
+}
+
+.dockray-feature__title {
+    margin: 0 0 0.4rem;
+    color: var(--dr-ink);
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.dockray-feature__state {
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    color: var(--dr-muted);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dockray-feature.is-on .dockray-feature__state {
+    color: var(--dr-up-text);
+}
+
+.dockray-feature__text {
+    margin: 0;
+    color: var(--dr-muted);
+    font-size: 1.3rem;
+}
+
+/* ---------- Cards ---------- */
+
+.dockray-card {
+    margin-bottom: 2rem;
+    border: 1px solid var(--dr-line);
+    border-radius: var(--dr-radius-lg);
+    background: #fff;
+    box-shadow: var(--dr-shadow);
+}
+
+.dockray-card--accent {
+    border-color: rgba(194, 65, 12, 0.35);
+    background: linear-gradient(180deg, var(--dr-brand-soft), #fff 70%);
+}
+
+.dockray-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.6rem;
+    padding: 2rem 2.4rem 0;
+}
+
+.dockray-card__title {
+    margin: 0;
+    color: var(--dr-ink);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.dockray-card__subtitle {
+    margin: 0.4rem 0 0;
+    color: var(--dr-muted);
+}
+
+.dockray-card__body {
+    padding: 2rem 2.4rem 2.4rem;
+}
+
+.dockray-steps {
+    margin: 1.2rem 0 0;
+    padding-left: 2rem;
+}
+
+.dockray-steps li {
+    margin-bottom: 0.6rem;
+}
+
+/* ---------- Inventory report ---------- */
+
+.dockray-inventory__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+}
+
+.dockray-inventory__status .dockray-note {
+    margin: 0;
+}
+
+.dockray-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+    margin: 1.8rem 0 1.2rem;
+}
+
+.dockray-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 1.6rem 1.8rem;
+    border-radius: 14px;
+    background: var(--dr-surface);
+}
+
+.dockray-stat__value {
+    color: var(--dr-ink);
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.dockray-stat__label {
+    color: var(--dr-muted);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dockray-stat--danger {
+    background: var(--dr-down-soft);
+}
+
+.dockray-stat--danger .dockray-stat__value {
+    color: var(--dr-down-text);
+}
+
+.dockray-stat--ok .dockray-stat__value {
+    color: var(--dr-up-text);
+}
+
+.dockray-stat--warning {
+    background: var(--dr-warn-soft);
+}
+
+.dockray-stat--warning .dockray-stat__value {
+    color: var(--dr-warn-text);
+}
+
+.dockray-table-wrap {
+    overflow-x: auto;
+    margin-top: 1.6rem;
+    border: 1px solid var(--dr-line);
+    border-radius: 14px;
+}
+
+.dockray-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dockray .dockray-table th,
+.dockray .dockray-table td {
+    padding: 1.2rem 1.4rem;
+    border: 0;
+    border-bottom: 1px solid var(--dr-line);
+    background: transparent;
+    text-align: left;
+    vertical-align: top;
+}
+
+.dockray .dockray-table th {
+    color: var(--dr-muted);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--dr-surface);
+}
+
+.dockray .dockray-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.dockray-type {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: var(--dr-muted);
+    font-size: 1.15rem;
+}
+
+.dockray-severity {
+    display: inline-block;
+    padding: 0.2rem 0.9rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--dr-surface);
+    color: var(--dr-muted);
+}
+
+.dockray-severity--critical {
+    background: var(--dr-down-text);
+    color: #fff;
+}
+
+.dockray-severity--high {
+    background: var(--dr-down-soft);
+    color: var(--dr-down-text);
+}
+
+.dockray-severity--medium {
+    background: var(--dr-warn-soft);
+    color: var(--dr-warn-text);
+}
+
+.dockray-severity--low {
+    background: var(--dr-up-soft);
+    color: var(--dr-up-text);
+}
+
+.dockray-empty {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.6rem 1.8rem;
+    border: 1px dashed var(--dr-line-strong);
+    border-radius: 14px;
+    color: var(--dr-muted);
+}
+
+.dockray-empty p {
+    margin: 0;
+}
+
+.dockray-empty__icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-shrink: 0;
+    background-color: var(--dr-line-strong);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z'/%3E%3C/svg%3E") no-repeat center / contain;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+.dockray-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.8rem 2rem;
+    padding: 0 0.4rem 2rem;
+    color: var(--dr-muted);
+    font-size: 1.25rem;
+}
+
+/* ---------- Configuration tab in the left column ---------- */
+
+.admin__page-nav.dockray-tab .admin__page-nav-title strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.admin__page-nav.dockray-tab .admin__page-nav-title strong::before {
+    content: '';
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+    background: url('../images/dockray-mark-dark.svg') no-repeat center / contain;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 1024px) {
+    .dockray-features {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dockray-banner {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .dockray-hero {
+        padding: 2.4rem 2rem;
+    }
+
+    .dockray-hero__title {
+        font-size: 2.2rem;
+    }
+
+    .dockray-features,
+    .dockray-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dockray-card__header {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dockray-btn {
+        transition: none;
+    }
+}
