@@ -85,6 +85,14 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
+            <group id="security" translate="label" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Security report</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Send the security report</label>
+                    <comment>Off by default. Every few hours and shortly after software changes, sends checksums of the code (Magento, Composer packages, app/code, app/design) and of entry and configuration files, suspicious files in pub/media by path and indicator name, and a few PHP settings as yes or no - never file contents, configuration values or customer data. Requires the token, the private key and Magento cron.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
         </section>
     </system>
 </config>

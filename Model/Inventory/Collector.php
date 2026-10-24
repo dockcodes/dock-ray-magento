@@ -6,7 +6,6 @@ namespace DockCodes\DockRay\Model\Inventory;
 
 use DockCodes\DockRay\Model\Config;
 use DockCodes\DockRay\Model\Version;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
@@ -45,7 +44,6 @@ class Collector
         private readonly ComponentRegistrarInterface $componentRegistrar,
         private readonly FullModuleList $fullModuleList,
         private readonly ModuleListInterface $enabledModules,
-        private readonly ScopeConfigInterface $scopeConfig,
     ) {
     }
 
@@ -259,19 +257,7 @@ class Collector
     /** The public address of the default store - it tells production from staging. */
     private function siteUrl(): string
     {
-        foreach (['web/secure/base_url', 'web/unsecure/base_url'] as $path) {
-            $url = trim((string) $this->scopeConfig->getValue($path));
-
-            if ($url !== '' && ! str_contains($url, '{{')) {
-                $parts = parse_url($url);
-
-                if (is_array($parts) && isset($parts['scheme'], $parts['host'])) {
-                    return $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '').rtrim($parts['path'] ?? '', '/');
-                }
-            }
-        }
-
-        return '';
+        return $this->config->siteUrl();
     }
 
     /**

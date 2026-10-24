@@ -1,7 +1,7 @@
 {
   "name": "dockcodes/dock-ray-magento",
   "type": "magento2-module",
-  "description": "Magento 2 / Adobe Commerce module reporting PHP errors, exceptions, request timings, JavaScript errors and vulnerable software to DockRay",
+  "description": "Magento 2 / Adobe Commerce module reporting PHP errors, exceptions, request timings, JavaScript errors, vulnerable software and code integrity to DockRay",
   "homepage": "https://dockray.io",
   "keywords": [
     "magento",
@@ -10,7 +10,9 @@
     "error-monitoring",
     "crash-reporting",
     "performance-monitoring",
-    "vulnerability-scanner"
+    "vulnerability-scanner",
+    "security",
+    "file-integrity"
   ],
   "license": "MIT",
   "authors": [

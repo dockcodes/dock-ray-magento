@@ -7,6 +7,7 @@ namespace DockCodes\DockRay\Plugin;
 use Dock\Ray\Framework\HttpTransaction;
 use DockCodes\DockRay\Model\Privacy;
 use DockCodes\DockRay\Model\Reporter;
+use DockCodes\DockRay\Model\Security\WebPosture;
 use Magento\Framework\App\Bootstrap;
 use Magento\Framework\App\Http;
 use Magento\Framework\App\RequestInterface;
@@ -18,7 +19,10 @@ use Magento\Framework\App\State;
  * - `launch()` boots the SDK as early as Magento allows and measures the
  *   request when transactions are on;
  * - `catchException()` sees every exception that reached Magento's error
- *   page, including the ones nobody logged.
+ *   page, including the ones nobody logged;
+ * - with the security report on, a handled storefront, REST or GraphQL
+ *   request records the PHP settings visitors get (at most hourly, one cache
+ *   read otherwise) - cron, which builds the report, has its own php.ini.
  */
 class HttpApplicationPlugin
 {
@@ -29,6 +33,7 @@ class HttpApplicationPlugin
         private readonly Reporter $reporter,
         private readonly RequestInterface $request,
         private readonly State $state,
+        private readonly WebPosture $webPosture,
     ) {
     }
 
@@ -57,6 +62,8 @@ class HttpApplicationPlugin
             $this->measure($booted, $status > 0 ? $status : 200);
         }
 
+        $this->captureWebPosture();
+
         return $response;
     }
 
@@ -65,6 +72,26 @@ class HttpApplicationPlugin
         $this->reporter->captureException($exception);
 
         return null;
+    }
+
+    /**
+     * Not in the admin: it may run in its own PHP-FPM pool with its own
+     * limits, and what counts is what visitors get.
+     */
+    private function captureWebPosture(): void
+    {
+        try {
+            try {
+                $area = $this->state->getAreaCode();
+            } catch (\Throwable) {
+                $area = '';
+            }
+
+            if ($area !== 'adminhtml') {
+                $this->webPosture->capture();
+            }
+        } catch (\Throwable) {
+        }
     }
 
     /**

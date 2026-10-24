@@ -1,0 +1,121 @@
+<?php
+/**
+ * The stored outcome of the last security report. Everything that came from
+ * DockRay is untrusted and escaped here; a finding's link is rendered only
+ * when it points at the configured DockRay server over HTTPS.
+ *
+ * @var \DockCodes\DockRay\Block\Adminhtml\Dashboard $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$result = $block->securityResult();
+$enabled = $block->securityEnabled();
+?>
+<?php if ($result === null): ?>
+    <div class="dockray-empty">
+        <span class="dockray-empty__icon" aria-hidden="true"></span>
+        <p><?= $escaper->escapeHtml($enabled
+            ? __('No report has been sent yet. The first one goes out with the next Magento cron run.')
+            : __('No report has been sent yet.')) ?></p>
+    </div>
+<?php return; endif; ?>
+
+<?php
+$at = (int) ($result['at'] ?? 0);
+$scan = is_array($result['scan'] ?? null) ? $result['scan'] : null;
+$report = is_array($result['report'] ?? null) ? $result['report'] : null;
+?>
+<div class="dockray-inventory__status">
+    <?php if (! empty($result['success'])): ?>
+        <span class="dockray-pill dockray-pill--ok"><span class="dockray-pill__dot" aria-hidden="true"></span><?= $escaper->escapeHtml(__('Sent %1 ago', $block->timeAgo($at))) ?></span>
+    <?php else: ?>
+        <span class="dockray-pill dockray-pill--error"><span class="dockray-pill__dot" aria-hidden="true"></span><?= $escaper->escapeHtml(__('Failed %1 ago', $block->timeAgo($at))) ?></span>
+    <?php endif; ?>
+    <span class="dockray-note"><?= $escaper->escapeHtml($block->formatTimestamp($at)) ?></span>
+    <?php if ($enabled && ! empty($result['next_at'])): ?>
+        <span class="dockray-note">· <?= $escaper->escapeHtml(__('Next scheduled report: %1', $block->formatTimestamp(max((int) $result['next_at'], time())))) ?></span>
+    <?php endif; ?>
+</div>
+
+<?php if ($scan !== null): ?>
+    <p class="dockray-note">
+        <?= $escaper->escapeHtml(__('%1 files checked.', (int) ($scan['files'] ?? 0))) ?>
+        <?php if (! empty($scan['truncated'])): ?>
+            <?= $escaper->escapeHtml(__('The scan stopped at its limit. The next one continues where it left off, within the hour.')) ?>
+        <?php endif; ?>
+    </p>
+<?php endif; ?>
+
+<?php if (empty($result['success'])): ?>
+    <p class="dockray-result dockray-result--error">
+        <?= $escaper->escapeHtml($block->errorLabel($result)) ?>
+        <?php if ((int) ($result['status'] ?? 0) > 0): ?>
+            <?= $escaper->escapeHtml(__('(HTTP %1)', (int) $result['status'])) ?>
+        <?php endif; ?>
+    </p>
+    <?php if (($result['message'] ?? '') !== ''): ?>
+        <p class="dockray-note"><?= $escaper->escapeHtml(__('Server message: %1', (string) $result['message'])) ?></p>
+    <?php endif; ?>
+<?php endif; ?>
+
+<?php if ($report === null) {
+    return;
+} ?>
+
+<?php if (empty($result['success'])): ?>
+    <p class="dockray-note"><?= $escaper->escapeHtml(__('Findings below come from the last successful report, %1.', $block->formatTimestamp((int) ($report['at'] ?? 0)))) ?></p>
+<?php endif; ?>
+
+<?php $findings = is_array($report['findings'] ?? null) ? $report['findings'] : []; ?>
+<div class="dockray-stats dockray-stats--four">
+    <?php foreach (['critical', 'high', 'medium', 'low'] as $severity): ?>
+        <?php $count = (int) ($findings[$severity] ?? 0); ?>
+        <div class="dockray-stat <?= /* @noEscape */ $count > 0 ? ($severity === 'critical' || $severity === 'high' ? 'dockray-stat--danger' : 'dockray-stat--warning') : '' ?>">
+            <span class="dockray-stat__value"><?= /* @noEscape */ $count ?></span>
+            <span class="dockray-stat__label"><?= $escaper->escapeHtml($block->severityLabel($severity)) ?></span>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<?php $items = is_array($report['items'] ?? null) ? $report['items'] : []; ?>
+<?php if ($items === []): ?>
+    <?php if (array_sum(array_map('intval', $findings)) === 0): ?>
+        <p class="dockray-result dockray-result--ok"><?= $escaper->escapeHtml(__('No open findings.')) ?></p>
+    <?php endif; ?>
+    <?php return; ?>
+<?php endif; ?>
+
+<div class="dockray-table-wrap">
+    <table class="dockray-table">
+        <thead>
+        <tr>
+            <th scope="col"><?= $escaper->escapeHtml(__('Severity')) ?></th>
+            <th scope="col"><?= $escaper->escapeHtml(__('Finding')) ?></th>
+            <th scope="col"><?= $escaper->escapeHtml(__('Affected')) ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($items as $item): ?>
+            <?php
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $severity = $block->isSeverity((string) ($item['severity'] ?? '')) ? (string) $item['severity'] : 'unknown';
+            $title = (string) ($item['title'] ?? '');
+            $title = $title !== '' ? $title : (string) ($item['code'] ?? __('no title'));
+            $url = $block->safeSecurityUrl(isset($item['url']) ? (string) $item['url'] : null);
+            ?>
+            <tr>
+                <td><span class="dockray-severity dockray-severity--<?= $escaper->escapeHtmlAttr($severity) ?>"><?= $escaper->escapeHtml($block->severityLabel($severity)) ?></span></td>
+                <td>
+                    <?= $escaper->escapeHtml($title) ?>
+                    <?php if ($url !== null): ?>
+                        · <a href="<?= $escaper->escapeUrl($url) ?>" target="_blank" rel="noopener noreferrer"><?= $escaper->escapeHtml(__('Details')) ?></a>
+                    <?php endif; ?>
+                </td>
+                <td><code class="dockray-subject"><?= $escaper->escapeHtml((string) ($item['subject'] ?? '')) ?></code></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

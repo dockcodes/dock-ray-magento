@@ -7,6 +7,7 @@ namespace DockCodes\DockRay\Block\Adminhtml;
 use DockCodes\DockRay\Model\Config;
 use DockCodes\DockRay\Model\Inventory\InventoryService;
 use DockCodes\DockRay\Model\Inventory\State;
+use DockCodes\DockRay\Model\Security\SecurityService;
 use DockCodes\DockRay\Model\Version;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
@@ -25,6 +26,7 @@ class Dashboard extends Template
         private readonly InventoryService $inventory,
         private readonly State $state,
         private readonly Json $json,
+        private readonly SecurityService $security,
         array $data = [],
     ) {
         parent::__construct($context, $data);
@@ -52,6 +54,57 @@ class Dashboard extends Template
     public function inventoryResult(): ?array
     {
         return $this->hasData('result') ? $this->getData('result') : $this->inventory->lastResult();
+    }
+
+    public function securityEnabled(): bool
+    {
+        return $this->security->isEnabled();
+    }
+
+    public function securityResult(): ?array
+    {
+        return $this->hasData('security_result') ? $this->getData('security_result') : $this->security->lastResult();
+    }
+
+    /** When the PHP settings visitors get were last measured on the storefront; null when never. */
+    public function webPostureMeasuredAt(): ?int
+    {
+        return $this->security->webPostureMeasuredAt();
+    }
+
+    public function safeSecurityUrl(?string $url): ?string
+    {
+        return $this->security->safeItemUrl($url);
+    }
+
+    /**
+     * The early fatal error reporter: the `auto_prepend_file` line for this
+     * installation, whether PHP loaded the file in this very request (it
+     * defines `DOCKRAY_EARLY_FATAL`), and where it would find credentials.
+     *
+     * @return array{line: string, active: bool, credentials: string|null}
+     */
+    public function earlyFatal(): array
+    {
+        $file = dirname(__DIR__, 2).'/early-fatal.php';
+        $file = realpath($file) ?: $file;
+        $set = static function (string $name): bool {
+            $value = getenv($name);
+
+            return (is_string($value) && trim($value) !== '') || (is_string($_SERVER[$name] ?? null) && trim($_SERVER[$name]) !== '');
+        };
+
+        $credentials = null;
+
+        if ($set('RAY_TOKEN') && $set('RAY_PRIVATE_KEY')) {
+            $credentials = 'environment';
+        } elseif ($set('CONFIG__DEFAULT__DOCKRAY__CONNECTION__TOKEN') && $set('CONFIG__DEFAULT__DOCKRAY__CONNECTION__PRIVATE_KEY')) {
+            $credentials = 'magento_environment';
+        } elseif ($this->config->credentialsInDeploymentConfig()) {
+            $credentials = 'env_php';
+        }
+
+        return ['line' => 'auto_prepend_file='.$file, 'active' => defined('DOCKRAY_EARLY_FATAL'), 'credentials' => $credentials];
     }
 
     public function lastTest(): ?array
@@ -95,6 +148,11 @@ class Dashboard extends Template
         return $this->_authorization->isAllowed('DockCodes_DockRay::inventory');
     }
 
+    public function canSendSecurity(): bool
+    {
+        return $this->_authorization->isAllowed('DockCodes_DockRay::security');
+    }
+
     public function canConfigure(): bool
     {
         return $this->_authorization->isAllowed('DockCodes_DockRay::config');
@@ -106,6 +164,7 @@ class Dashboard extends Template
         return (string) $this->json->serialize([
             'testUrl' => $this->getUrl('dockray/test/send'),
             'inventoryUrl' => $this->getUrl('dockray/inventory/send'),
+            'securityUrl' => $this->getUrl('dockray/security/send'),
             'formKey' => $this->getFormKey(),
             'strings' => [
                 'sending' => (string) __('Sending…'),
@@ -114,12 +173,13 @@ class Dashboard extends Template
                 'connected' => (string) __('Connected - verified just now'),
                 'testFailed' => (string) __('Test failed just now'),
                 'inventoryFailed' => (string) __('The report could not be sent.'),
+                'securityScanning' => (string) __('Scanning the files and sending…'),
             ],
         ]);
     }
 
     /**
-     * The four things the module does, with their current state - the tiles
+     * The five things the module does, with their current state - the tiles
      * at the top of the overview.
      *
      * @return list<array{key: string, title: string, state: string, on: bool, text: string}>
@@ -158,6 +218,13 @@ class Dashboard extends Template
                 'on' => $this->inventoryEnabled(),
                 'state' => (string) ($this->inventoryEnabled() ? __('On') : __('Off')),
                 'text' => (string) __('Magento, Composer packages and extensions checked against known vulnerabilities.'),
+            ],
+            [
+                'key' => 'security',
+                'title' => (string) __('Security report'),
+                'on' => $this->securityEnabled(),
+                'state' => (string) ($this->securityEnabled() ? __('On') : __('Off')),
+                'text' => (string) __('Modified core and extension files, PHP hidden in pub/media and risky PHP settings, compared with earlier reports.'),
             ],
         ];
     }
@@ -216,6 +283,8 @@ class Dashboard extends Template
             'unauthorized' => __('Rejected: the private key is missing or not accepted.'),
             'not_found' => __('Rejected: the project was not found or is disabled. Check the token and the private key.'),
             'invalid' => __('Rejected: the server did not accept the report.'),
+            'too_large' => __('Not sent: the report is larger than DockRay accepts.'),
+            'not_https' => __('Not sent: the DockRay address is not HTTPS.'),
             'rate_limited' => __('Too many reports: DockRay asked to wait until the next scheduled run.'),
             'server' => __('DockRay had a server problem. The report will be retried automatically.'),
             'network' => __('DockRay could not be reached. The report will be retried automatically.'),

@@ -88,6 +88,61 @@ $configured = $block->isConfigured();
         </div>
     </section>
 
+    <section class="dockray-card" data-dockray-security>
+        <header class="dockray-card__header">
+            <div>
+                <h2 class="dockray-card__title"><?= $escaper->escapeHtml(__('Last security report')) ?></h2>
+                <p class="dockray-card__subtitle"><?= $escaper->escapeHtml(__('Open findings as DockRay sees them: changed code, suspicious files and risky settings.')) ?></p>
+            </div>
+            <?php if ($block->canSendSecurity()): ?>
+                <button type="button" class="dockray-btn dockray-btn--ghost" data-dockray-security-send <?= /* @noEscape */ $block->securityEnabled() ? '' : 'disabled' ?>>
+                    <?= $escaper->escapeHtml(__('Send now')) ?>
+                </button>
+            <?php endif; ?>
+        </header>
+        <div class="dockray-card__body">
+            <?php if (! $block->securityEnabled()): ?>
+                <p class="dockray-note">
+                    <?= $escaper->escapeHtml($configured
+                        ? __('The security report is off. Turn it on in Settings to send a report.')
+                        : __('Fill in the token and the private key, then turn on the security report.')) ?>
+                </p>
+            <?php elseif ($block->webPostureMeasuredAt() === null): ?>
+                <p class="dockray-note"><?= $escaper->escapeHtml(__('PHP settings that visitors get (displayed errors, shell functions, writable code) are measured on storefront requests. None has been measured yet, so the report leaves them out until the store gets traffic.')) ?></p>
+            <?php endif; ?>
+            <p class="dockray-result" role="status" aria-live="polite" data-dockray-security-result></p>
+            <div data-dockray-security-report>
+                <?= /* @noEscape */ $block->fetchView($block->getTemplateFile('DockCodes_DockRay::security-report.phtml')) ?>
+            </div>
+        </div>
+    </section>
+
+    <?php $early = $block->earlyFatal(); ?>
+    <section class="dockray-card">
+        <header class="dockray-card__header">
+            <div>
+                <h2 class="dockray-card__title"><?= $escaper->escapeHtml(__('Early fatal errors')) ?></h2>
+                <p class="dockray-card__subtitle"><?= $escaper->escapeHtml(__('Fatal errors raised before Magento loads this module.')) ?></p>
+            </div>
+            <span class="dockray-pill <?= /* @noEscape */ $early['active'] ? 'dockray-pill--ok' : 'dockray-pill--neutral' ?>">
+                <span class="dockray-pill__dot" aria-hidden="true"></span>
+                <?= $escaper->escapeHtml($early['active'] ? __('Active in this request') : __('Not enabled')) ?>
+            </span>
+        </header>
+        <div class="dockray-card__body">
+            <p><?= $escaper->escapeHtml(__('The module reports errors once Magento has started. A fatal error before that - a broken file in app/etc, a parse error in an extension, memory exhausted while Magento boots - is caught by a small file PHP loads before Magento. Add this line to php.ini, to pub/.user.ini or to the PHP-FPM pool, then reload PHP:')) ?></p>
+            <pre class="dockray-code"><code><?= $escaper->escapeHtml($early['line']) ?></code></pre>
+            <p class="dockray-note">
+                <?= $escaper->escapeHtml(match ($early['credentials']) {
+                    'environment' => __('Credentials: RAY_TOKEN and RAY_PRIVATE_KEY from the server environment.'),
+                    'magento_environment' => __('Credentials: the CONFIG__DEFAULT__DOCKRAY__CONNECTION__* environment variables.'),
+                    'env_php' => __('Credentials: the token and the private key locked in app/etc/env.php.'),
+                    default => __('The file cannot find credentials: a private key saved in the admin is encrypted in the database, which it does not read. Set RAY_TOKEN and RAY_PRIVATE_KEY in the server environment (for example env[RAY_TOKEN] in the PHP-FPM pool), or lock both in app/etc/env.php with bin/magento config:set --lock-env.'),
+                }) ?>
+            </p>
+        </div>
+    </section>
+
     <footer class="dockray-footer">
         <span><?= $escaper->escapeHtml(__('Nothing is sent while an admin page is shown. Reports leave after the response, filtered: no request bodies, headers, cookies or query strings.')) ?></span>
         <span>

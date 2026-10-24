@@ -9,4 +9,14 @@
             <schedule>*/15 * * * *</schedule>
         </job>
     </group>
+    <group id="dockray">
+        <!--
+            Cheap tick as well, but when a report is due it scans the code and
+            pub/media for up to a minute - in its own group and process
+            (etc/cron_groups.xml), so the jobs of the default group never wait.
+        -->
+        <job name="dockray_security_tick" instance="DockCodes\DockRay\Cron\SecurityTick" method="execute">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+    </group>
 </config>

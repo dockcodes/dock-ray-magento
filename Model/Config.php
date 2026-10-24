@@ -39,11 +39,13 @@ class Config
 
     public const XML_INVENTORY = 'dockray/inventory/enabled';
 
+    public const XML_SECURITY = 'dockray/security/enabled';
+
     /** Every path the module stores - uninstall removes exactly these. */
     public const PATHS = [
         self::XML_TOKEN, self::XML_PRIVATE_KEY, self::XML_ENVIRONMENT, self::XML_RELEASE,
         self::XML_TRACES_SAMPLE_RATE, self::XML_SEND_DEFAULT_PII, self::XML_JS_ERRORS,
-        self::XML_JS_SAMPLE_RATE, self::XML_INVENTORY,
+        self::XML_JS_SAMPLE_RATE, self::XML_INVENTORY, self::XML_SECURITY,
     ];
 
     private ?string $release = null;
@@ -83,6 +85,24 @@ class Config
         return $value;
     }
 
+    /**
+     * Whether the token and a plain-text private key are locked in
+     * app/etc/env.php (`config:set --lock-env`) - where the early fatal error
+     * reporter can read them without the database.
+     */
+    public function credentialsInDeploymentConfig(): bool
+    {
+        try {
+            $token = $this->deploymentConfig->get('system/default/'.self::XML_TOKEN);
+            $key = $this->deploymentConfig->get('system/default/'.self::XML_PRIVATE_KEY);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return is_string($token) && trim($token) !== '' && is_string($key) && trim($key) !== ''
+            && preg_match('/^\d+:\d+:/', trim($key)) !== 1;
+    }
+
     public function isConfigured(): bool
     {
         return $this->token() !== '' && $this->privateKey() !== '';
@@ -119,6 +139,27 @@ class Config
         } catch (\Throwable) {
             return 'production';
         }
+    }
+
+    /** Whether Magento runs in developer mode - with error details shown to visitors. */
+    public function developerMode(): bool
+    {
+        try {
+            return $this->state->getMode() === State::MODE_DEVELOPER;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * The release as set in the settings (database, app/etc/env.php or a
+     * CONFIG__DEFAULT__ variable), without the deployed_version.txt fallback.
+     */
+    public function configuredRelease(): ?string
+    {
+        $value = trim((string) $this->scopeConfig->getValue(self::XML_RELEASE));
+
+        return $value !== '' ? $value : null;
     }
 
     /**
@@ -174,9 +215,41 @@ class Config
         return $this->scopeConfig->isSetFlag(self::XML_INVENTORY);
     }
 
+    public function security(): bool
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_SECURITY);
+    }
+
     public function rootDirectory(): string
     {
         return rtrim($this->directoryList->getRoot(), '/\\');
+    }
+
+    /** Magento's `var` directory - private state such as the security hash cache. */
+    public function varDirectory(): string
+    {
+        return rtrim($this->directoryList->getPath(DirectoryList::VAR_DIR), '/\\');
+    }
+
+    /**
+     * The public address of the default store - it tells production from
+     * staging. Scheme, host, port and path only, without a trailing slash.
+     */
+    public function siteUrl(): string
+    {
+        foreach (['web/secure/base_url', 'web/unsecure/base_url'] as $path) {
+            $url = trim((string) $this->scopeConfig->getValue($path));
+
+            if ($url !== '' && ! str_contains($url, '{{')) {
+                $parts = parse_url($url);
+
+                if (is_array($parts) && isset($parts['scheme'], $parts['host'])) {
+                    return $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '').rtrim($parts['path'] ?? '', '/');
+                }
+            }
+        }
+
+        return '';
     }
 
     private function rate(string $path, float $default): float

@@ -28,6 +28,7 @@
     <type name="DockCodes\DockRay\Plugin\HttpApplicationPlugin">
         <arguments>
             <argument name="reporter" xsi:type="object">DockCodes\DockRay\Model\Reporter\Proxy</argument>
+            <argument name="webPosture" xsi:type="object">DockCodes\DockRay\Model\Security\WebPosture\Proxy</argument>
         </arguments>
     </type>
 
@@ -63,6 +64,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="dockray_test" xsi:type="object">DockCodes\DockRay\Console\Command\TestCommand</item>
                 <item name="dockray_inventory" xsi:type="object">DockCodes\DockRay\Console\Command\InventoryCommand</item>
+                <item name="dockray_security" xsi:type="object">DockCodes\DockRay\Console\Command\SecurityCommand</item>
             </argument>
         </arguments>
     </type>
@@ -76,6 +78,11 @@
     <type name="DockCodes\DockRay\Console\Command\InventoryCommand">
         <arguments>
             <argument name="inventory" xsi:type="object">DockCodes\DockRay\Model\Inventory\InventoryService\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="DockCodes\DockRay\Console\Command\SecurityCommand">
+        <arguments>
+            <argument name="security" xsi:type="object">DockCodes\DockRay\Model\Security\SecurityService\Proxy</argument>
         </arguments>
     </type>
 </config>

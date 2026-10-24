@@ -1,7 +1,8 @@
 /**
- * DockRay admin screens: "Send a test event" and "Send now" without a page
- * reload. No dependencies beyond the browser - the module must not pull in
- * a framework for two buttons.
+ * DockRay admin screens: "Send a test event" and the "Send now" buttons of
+ * the vulnerability and security reports without a page reload. No
+ * dependencies beyond the browser - the module must not pull in a framework
+ * for three buttons.
  */
 define([], function () {
     'use strict';
@@ -42,13 +43,42 @@ define([], function () {
         });
     }
 
+    /**
+     * A "Send now" button of a report card: posts, shows the answer and puts
+     * the server-rendered panel in place. Server-rendered and escaped there;
+     * nothing from the response is interpreted here.
+     */
+    function wireReport(root, name, url, formKey, sending, failed) {
+        var button = root.querySelector('[data-dockray-' + name + '-send]');
+        var result = root.querySelector('[data-dockray-' + name + '-result]');
+        var report = root.querySelector('[data-dockray-' + name + '-report]');
+
+        if (!button || !url) {
+            return;
+        }
+
+        button.addEventListener('click', function () {
+            button.disabled = true;
+            show(result, sending, 'pending');
+
+            post(url, formKey).then(function (data) {
+                show(result, (data && data.message) || failed, data && data.success ? 'ok' : 'error');
+
+                if (data && typeof data.html === 'string' && report) {
+                    report.innerHTML = data.html;
+                }
+            }).catch(function () {
+                show(result, failed, 'error');
+            }).finally(function () {
+                button.disabled = false;
+            });
+        });
+    }
+
     return function (config, root) {
         var strings = config.strings || {};
         var testButton = root.querySelector('[data-dockray-test]');
         var testResult = root.querySelector('[data-dockray-test-result]');
-        var inventoryButton = root.querySelector('[data-dockray-inventory-send]');
-        var inventoryResult = root.querySelector('[data-dockray-inventory-result]');
-        var inventoryReport = root.querySelector('[data-dockray-inventory-report]');
 
         if (testButton) {
             testButton.addEventListener('click', function () {
@@ -72,25 +102,7 @@ define([], function () {
             });
         }
 
-        if (inventoryButton) {
-            inventoryButton.addEventListener('click', function () {
-                inventoryButton.disabled = true;
-                show(inventoryResult, strings.sending, 'pending');
-
-                post(config.inventoryUrl, config.formKey).then(function (data) {
-                    show(inventoryResult, (data && data.message) || strings.inventoryFailed, data && data.success ? 'ok' : 'error');
-
-                    // Server-rendered and escaped there; nothing from the
-                    // response is interpreted here.
-                    if (data && typeof data.html === 'string' && inventoryReport) {
-                        inventoryReport.innerHTML = data.html;
-                    }
-                }).catch(function () {
-                    show(inventoryResult, strings.inventoryFailed, 'error');
-                }).finally(function () {
-                    inventoryButton.disabled = false;
-                });
-            });
-        }
+        wireReport(root, 'inventory', config.inventoryUrl, config.formKey, strings.sending, strings.inventoryFailed);
+        wireReport(root, 'security', config.securityUrl, config.formKey, strings.securityScanning || strings.sending, strings.inventoryFailed);
     };
 });

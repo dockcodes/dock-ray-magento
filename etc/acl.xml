@@ -7,6 +7,7 @@
                     <resource id="DockCodes_DockRay::overview" title="Overview and vulnerability report" translate="title" sortOrder="10"/>
                     <resource id="DockCodes_DockRay::test" title="Send a test event" translate="title" sortOrder="20"/>
                     <resource id="DockCodes_DockRay::inventory" title="Send the software report" translate="title" sortOrder="30"/>
+                    <resource id="DockCodes_DockRay::security" title="Send the security report" translate="title" sortOrder="40"/>
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">

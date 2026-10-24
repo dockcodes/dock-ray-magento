@@ -19,6 +19,9 @@
             <inventory>
                 <enabled>0</enabled>
             </inventory>
+            <security>
+                <enabled>0</enabled>
+            </security>
         </dockray>
     </default>
 </config>
